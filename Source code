@@ -1,0 +1,109 @@
+from google.colab import files
+uploaded = files.upload()
+import pandas as pd
+
+df = pd.read_csv("stock_data.csv")  # Make sure this matches the uploaded file
+df.head()
+df.info()
+df.describe()
+print(df.isnull().sum())
+print(f"Duplicates: {df.duplicated().sum()}")
+df = pd.read_csv('stock_data.csv')
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Load the CSV file
+df = pd.read_csv('stock_data.csv')  # Update path as needed
+df.columns = df.columns.str.strip()
+df.rename(columns={'Unnamed: 0': 'Date'}, inplace=True)
+df['Date'] = pd.to_datetime(df['Date'])
+
+# Plot all 5 stocks
+plt.figure(figsize=(12, 6))
+
+for stock in ['Stock_1', 'Stock_2', 'Stock_3', 'Stock_4', 'Stock_5']:
+    plt.plot(df['Date'], df[stock], label=stock)
+
+plt.title('Stock Prices Over Time')
+plt.xlabel('Date')
+plt.ylabel('Price')
+plt.legend()
+plt.xticks(rotation=45)
+plt.grid(True)
+plt.tight_layout()
+plt.show()
+
+target = 'Close'
+features = ['Open', 'High', 'Low', 'Volume']  # Adjust according to your dataset
+df['Date'] = pd.to_datetime(df['Date'])
+df['Day'] = df['Date'].dt.day
+df['Month'] = df['Date'].dt.month
+df['Year'] = df['Date'].dt.year
+df = pd.get_dummies(df, drop_first=True)
+from sklearn.preprocessing import StandardScaler
+
+features = ['Stock_1', 'Stock_2', 'Stock_3', 'Stock_4', 'Stock_5']
+scaler = StandardScaler()
+scaled_features = scaler.fit_transform(df[features])
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+
+# Load the dataset
+# If stock_data.csv is in the current directory, you can use this:
+df = pd.read_csv("stock_data.csv")
+# Or, if it's in a different directory, specify the full path:
+# df = pd.read_csv("/path/to/your/stock_data.csv")  # Replace with your actual path
+
+# Drop the unnamed index column if unnecessary
+df = df.drop(columns=['Unnamed: 0'])
+
+# Define features and target
+target = 'Stock_1'
+X = df.drop(columns=[target])
+y = df[target].values
+
+# Scale the features
+scaler = StandardScaler()
+scaled_features = scaler.fit_transform(X)
+
+# Split the dataset
+X_train, X_test, y_train, y_test = train_test_split(
+    scaled_features, y, test_size=0.2, random_state=42
+    )
+from sklearn.linear_model import LinearRegression
+
+model = LinearRegression()
+model.fit(X_train, y_train)
+from sklearn.metrics import mean_squared_error, r2_score
+
+y_pred = model.predict(X_test)
+print("MSE:", mean_squared_error(y_test, y_pred))
+print("R² Score:", r2_score(y_test, y_pred))
+import numpy as np
+
+sample_input = np.array([[100, 102, 99, 500000]])  # Example input
+scaled_input = scaler.transform(sample_input)
+prediction = model.predict(scaled_input)
+print("Predicted Close Price:", prediction)
+def prepare_input(data_dict):
+    df_input = pd.DataFrame([data_dict])
+    df_input_scaled = scaler.transform(df_input[features])
+    return df_input_scaled
+def predict_price(data_dict):
+    processed_input = prepare_input(data_dict)
+    return model.predict(processed_input)[0]
+!pip install gradio
+import gradio as gr
+def predict_ui(Open, High, Low, Volume):
+    data = {'Open': Open, 'High': High, 'Low': Low, 'Volume': Volume}
+    return predict_price(data)
+interface = gr.Interface(
+    fn=predict_ui,
+    inputs=["number", "number", "number", "number"],
+    outputs="number",
+    title="Stock Price Predictor",
+    description="Predicts the stock closing price based on input features."
+)
+
+interface.launch()
